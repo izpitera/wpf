@@ -16,6 +16,7 @@ using System.Collections.ObjectModel;
 
 namespace wpf
 {
+    // Konstantin Konovalov
     public partial class MainWindow : Window
     {
         ObservableCollection<Employee> emps = new ObservableCollection<Employee>();
