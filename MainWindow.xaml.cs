@@ -13,10 +13,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace wpf
 {
     // Konstantin Konovalov
+    // изменение данных сотрудников пока не реализовано 
     public partial class MainWindow : Window
     {
         ObservableCollection<Employee> emps = new ObservableCollection<Employee>();
@@ -29,22 +31,30 @@ namespace wpf
         }
         void FillListEmployee()
         {
-            emps.Add(new Employee() {  Id = 1, 
-                                        nameFirst = "Иван", 
-                                        nameLast = "Сидоров", 
-                                        Age = 22, 
-                                        Salary = 3000 });
-            emps.Add(new Employee() {  Id = 2, 
-                                        nameFirst = "Пётр", 
-                                        nameLast = "Иванов", 
-                                        Age = 25, 
-                                        Salary = 6000 });
-            emps.Add(new Employee() {  Id = 3, 
-                                        nameFirst = "Авас", 
-                                        nameLast = "Горидзе", 
-                                        Age = 23, 
-                                        Salary = 8000 });
-            lbEmployee.ItemsSource = emps;
+            emps.Add(new Employee()
+            {
+                FirstName = "Иван",
+                LastName = "Сидоров",
+                Age = 22,
+                Salary = 3000,
+                Department = "ИТ"
+            });
+            emps.Add(new Employee() {
+                FirstName = "Пётр",
+                LastName = "Иванов",
+                Age = 25,
+                Salary = 6000,
+                Department = "Отдел Кадров" 
+            });
+            emps.Add(new Employee()
+            {
+                FirstName = "Авас",
+                LastName = "Горидзе",
+                Age = 23,
+                Salary = 8000,
+                Department = "Бухгалтерия"
+            });
+            lvEmployee.ItemsSource = emps;
         }
         void FillComboDepartment()
         {
@@ -62,15 +72,17 @@ namespace wpf
             });
             cbDepartment.ItemsSource = deps;
             cbDepartment.SelectedIndex = 0;
+            CbDepartmentEmployee.ItemsSource = deps;
+            CbDepartmentEmployee.SelectedIndex = 0;
         }
         private void lbEmployee_Selected(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(e.Source.ToString());
+            //MessageBox.Show(e.Source.ToString());
         }
 
         private void lbEmployee_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MessageBox.Show(e.AddedItems[0].ToString());
+            //MessageBox.Show(e.AddedItems[0].ToString());
         }
         private void cbDepartment_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -84,29 +96,108 @@ namespace wpf
         {
             deps.RemoveAt(cbDepartment.Items.IndexOf(cbDepartment.SelectedItem));
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void BtnAddEmployee_Click(object sender, RoutedEventArgs e)
         {
             emps.Add(new Employee()
             {
-                Id = 4,
-                nameFirst = "Сергей",
-                nameLast = "Шлюп",
-                Age = 26,
-                Salary = 7000
+
+                FirstName = TbFirstName.Text,
+                LastName = TbLastName.Text,
+                Age = Convert.ToInt32(TbAge.Text),
+                Salary = Convert.ToDouble(TbSalary.Text),
+                Department = CbDepartmentEmployee.SelectedItem.ToString()
             });
         }
+        private void BtnDeleteEmployee_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvEmployee.SelectedItem != null)
+                emps.Remove(lvEmployee.SelectedItem as Employee);
+        }
+        private void btnChangeUser_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvEmployee.SelectedItem != null)
+                (lvEmployee.SelectedItem as Employee).FirstName = "Иван";
+        }
+
+
     }
 
-    public class Employee
+    public class Employee : INotifyPropertyChanged
     {
-        public int Id { get; set; }
-        public string nameFirst { get; set; }
-        public string nameLast { get; set; }
-        public int Age { get; set; }
-        public double Salary { get; set; }
+        private string _nameFirst;
+        private string _nameLast;
+        private int _age;
+        private double _salary;
+        private string _department;
+        public string FirstName
+        {
+            get { return _nameFirst; }
+            set
+            {
+                if (_nameFirst != value)
+                {
+                    _nameFirst = value;
+                    NotifyPropertyChanged("FirstName");
+                }
+            }
+        }
+        public string LastName
+        {
+            get { return _nameLast; }
+            set
+            {
+                if (_nameLast != value)
+                {
+                    _nameLast = value;
+                    NotifyPropertyChanged("LastName");
+                }
+            }
+        }
+        public int Age
+        {
+            get { return _age; }
+            set
+            {
+                if (_age != value)
+                {
+                    _age = value;
+                    NotifyPropertyChanged("Age");
+                }
+            }
+        }
+        public double Salary
+        {
+            get { return _salary; }
+            set
+            {
+                if (_salary != value)
+                {
+                    _salary = value;
+                    NotifyPropertyChanged("Salary");
+                }
+            }
+        }
+        public string Department
+        {
+            get { return _department; }
+            set
+            {
+                if (_department != value)
+                {
+                    _department = value;
+                    NotifyPropertyChanged("Department");
+                }
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void NotifyPropertyChanged(string propName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+        }
+
         public override string ToString()
         {
-            return $"{Id,-3} {nameFirst,20} {nameLast,-20} {Age,-10} {Salary,-10}";
+            return $"{_nameFirst} {_nameLast} {_age} {_salary} {_department}";
         }
     }
     public class Department
